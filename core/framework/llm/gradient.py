@@ -52,20 +52,12 @@ class GradientProvider(LLMProvider):
         self.temperature = temperature
 
         # Resolve keys from env if not passed directly
-        self._model_access_key = (
-            model_access_key or os.environ.get("GRADIENT_MODEL_ACCESS_KEY")
-        )
-        self._agent_access_key = (
-            agent_access_key or os.environ.get("GRADIENT_AGENT_ACCESS_KEY")
-        )
-        self._agent_endpoint = (
-            agent_endpoint or os.environ.get("GRADIENT_AGENT_ENDPOINT")
-        )
+        self._model_access_key = model_access_key or os.environ.get("GRADIENT_MODEL_ACCESS_KEY")
+        self._agent_access_key = agent_access_key or os.environ.get("GRADIENT_AGENT_ACCESS_KEY")
+        self._agent_endpoint = agent_endpoint or os.environ.get("GRADIENT_AGENT_ENDPOINT")
 
         # Determine mode: agent inference takes priority if both keys present
-        self._use_agent_mode = bool(
-            self._agent_access_key and self._agent_endpoint
-        )
+        self._use_agent_mode = bool(self._agent_access_key and self._agent_endpoint)
 
         self._sync_client: Any = None
         self._async_client: Any = None
@@ -76,9 +68,7 @@ class GradientProvider(LLMProvider):
             try:
                 from gradient import Gradient
             except ImportError as exc:
-                raise ImportError(
-                    "Install the Gradient SDK: pip install gradient"
-                ) from exc
+                raise ImportError("Install the Gradient SDK: pip install gradient") from exc
 
             if self._use_agent_mode:
                 self._sync_client = Gradient(
@@ -97,9 +87,7 @@ class GradientProvider(LLMProvider):
             try:
                 from gradient import AsyncGradient
             except ImportError as exc:
-                raise ImportError(
-                    "Install the Gradient SDK: pip install gradient"
-                ) from exc
+                raise ImportError("Install the Gradient SDK: pip install gradient") from exc
 
             if self._use_agent_mode:
                 self._async_client = AsyncGradient(
