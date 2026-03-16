@@ -69,7 +69,8 @@ def get_max_tokens() -> int:
 
 
 def get_api_key() -> str | None:
-    """Return the API key, supporting env var, Claude Code subscription, Codex, ZAI Code, and Gradient.
+    """Return the API key, supporting env var, Claude Code subscription,
+    Codex, ZAI Code, and Gradient.
 
     Priority:
     1. Claude Code subscription (``use_claude_code_subscription: true``)
