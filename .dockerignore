@@ -1,0 +1,64 @@
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation (not needed at runtime)
+*.md
+!core/README.md
+docs/
+LICENSE
+CHANGELOG.md
+CONTRIBUTING.md
+SECURITY.md
+
+# IDE / editor
+.idea/
+.vscode/
+.claude/
+.kiro/
+.cursorrules
+.editorconfig
+
+# Dependencies (rebuilt in container)
+node_modules/
+.venv/
+core/.venv/
+tools/.venv/
+__pycache__/
+*.pyc
+
+# Build artifacts
+dist/
+build/
+coverage/
+core/frontend/dist/
+*.tsbuildinfo
+
+# Environment / secrets
+.env*
+config.yaml
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# GitHub
+.github/
+
+# Dev / CI files
+.pre-commit-config.yaml
+.mcp.json
+core/.mcp.json
+Makefile
+commit_message.txt
+contributors.yml
+scripts/
+core/demos/
+core/tests/
+tools/tests/
+tools/Dockerfile
