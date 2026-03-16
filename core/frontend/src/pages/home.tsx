@@ -27,18 +27,18 @@ const AGENT_ICONS: Record<string, LucideIcon> = {
 };
 
 const AGENT_COLORS: Record<string, string> = {
-  email_inbox_management: "hsl(210,75%,55%)",
-  job_hunter: "hsl(200,75%,50%)",
-  vulnerability_assessment: "hsl(15,70%,52%)",
-  deep_research_agent: "hsl(220,70%,58%)",
-  tech_news_reporter: "hsl(270,60%,55%)",
-  competitive_intel_agent: "hsl(190,70%,45%)",
-  email_reply_agent: "hsl(215,70%,55%)",
-  hubspot_revenue_leak_detector: "hsl(145,60%,42%)",
-  local_business_extractor: "hsl(350,65%,55%)",
-  meeting_scheduler: "hsl(225,65%,58%)",
-  sdr_agent: "hsl(165,55%,45%)",
-  twitter_news_agent: "hsl(200,85%,55%)",
+  email_inbox_management: "hsl(199,72%,60%)",
+  job_hunter: "hsl(195,70%,55%)",
+  vulnerability_assessment: "hsl(15,65%,58%)",
+  deep_research_agent: "hsl(210,65%,62%)",
+  tech_news_reporter: "hsl(265,55%,62%)",
+  competitive_intel_agent: "hsl(185,60%,50%)",
+  email_reply_agent: "hsl(205,65%,60%)",
+  hubspot_revenue_leak_detector: "hsl(155,50%,48%)",
+  local_business_extractor: "hsl(345,55%,60%)",
+  meeting_scheduler: "hsl(220,60%,62%)",
+  sdr_agent: "hsl(170,48%,50%)",
+  twitter_news_agent: "hsl(199,80%,60%)",
 };
 
 function agentSlug(path: string): string {
@@ -184,9 +184,9 @@ export default function Home() {
             <div
               className="inline-flex w-12 h-12 rounded-2xl items-center justify-center mb-4"
               style={{
-                backgroundColor: "hsl(210,85%,55%,0.1)",
-                border: "1.5px solid hsl(210,85%,55%,0.25)",
-                boxShadow: "0 0 24px hsl(210,85%,55%,0.08)",
+                backgroundColor: "hsl(199,82%,62%,0.1)",
+                border: "1.5px solid hsl(199,82%,62%,0.25)",
+                boxShadow: "0 0 24px hsl(199,82%,62%,0.08)",
               }}
             >
               <Crown className="w-6 h-6 text-primary" />
@@ -317,7 +317,7 @@ export default function Home() {
                   {agents.map((agent) => {
                     const slug = agentSlug(agent.path);
                     const Icon = AGENT_ICONS[slug] || Hexagon;
-                    const color = AGENT_COLORS[slug] || "hsl(210,85%,55%)";
+                    const color = AGENT_COLORS[slug] || "hsl(199,82%,62%)";
                     return (
                       <button
                         key={agent.path}

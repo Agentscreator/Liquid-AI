@@ -49,24 +49,24 @@ interface ChatPanelProps {
   autoStartVoice?: boolean;
 }
 
-const queenColor = "hsl(210,85%,55%)";
-const workerColor = "hsl(200,70%,50%)";
+const queenColor = "hsl(199,82%,62%)";
+const workerColor = "hsl(195,70%,52%)";
 
 function getColor(_agent: string, role?: "queen" | "worker"): string {
   if (role === "queen") return queenColor;
   return workerColor;
 }
 
-// Blue-ocean palette — sky blues, cyans, teals, and indigo accents
+// Baby blue tool palette — soft sky blues, cyans, teals
 const TOOL_HEX = [
-  "#2d8ff0", // sky blue
-  "#0ea5e9", // light blue
-  "#38bdf8", // pale blue
-  "#06b6d4", // cyan
-  "#14b8a6", // teal
-  "#3b82f6", // blue
-  "#6366f1", // indigo
-  "#8b5cf6", // violet-blue
+  "#5bb8f5", // baby blue
+  "#4dc4e8", // sky
+  "#6ec6f7", // pale blue
+  "#3dbdd4", // soft cyan
+  "#4dbfb6", // teal
+  "#68b5f6", // light blue
+  "#7da4f6", // periwinkle
+  "#9ba6f6", // lavender-blue
 ];
 
 function toolHex(name: string): string {
@@ -272,7 +272,7 @@ export default function ChatPanel({ messages, onSend, isWaiting, isWorkerWaiting
       const msg: ChatMessage = {
         id,
         agent: "You",
-        agentColor: "hsl(200,70%,50%)",
+        agentColor: "hsl(195,70%,52%)",
         content: text,
         timestamp: new Date().toISOString(),
         type: "user",

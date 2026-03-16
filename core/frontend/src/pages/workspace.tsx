@@ -2473,8 +2473,8 @@ export default function Workspace() {
                 <div className="flex flex-col h-full border-l border-border/40 bg-card/20 animate-in slide-in-from-right">
                   <div className="px-4 pt-4 pb-3 border-b border-border/30 flex items-start justify-between gap-2">
                     <div className="flex items-start gap-3 min-w-0">
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 bg-[hsl(210,40%,55%)]/15 border border-[hsl(210,40%,55%)]/25">
-                        <span className="text-sm" style={{ color: "hsl(210,40%,55%)" }}>
+                      <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5 bg-[hsl(199,45%,55%)]/15 border border-[hsl(199,45%,55%)]/25">
+                        <span className="text-sm" style={{ color: "hsl(199,45%,55%)" }}>
                           {{ "webhook": "\u26A1", "timer": "\u23F1", "api": "\u2192", "event": "\u223F" }[selectedNode.triggerType || ""] || "\u26A1"}
                         </span>
                       </div>

@@ -42,10 +42,10 @@ interface NodeDetailPanelProps {
 }
 
 const statusConfig: Record<NodeStatus, { label: string; color: string; Icon: React.FC<{ className?: string }> }> = {
-  running: { label: "Running", color: "hsl(45,95%,58%)", Icon: ({ className }) => <Loader2 className={`${className} animate-spin`} /> },
-  looping: { label: "Looping", color: "hsl(38,90%,55%)", Icon: ({ className }) => <RotateCcw className={`${className} animate-spin`} style={{ animationDuration: "2s" }} /> },
-  complete: { label: "Complete", color: "hsl(43,70%,45%)", Icon: ({ className }) => <CheckCircle2 className={className} /> },
-  pending: { label: "Pending", color: "hsl(220,15%,45%)", Icon: ({ className }) => <Clock className={className} /> },
+  running: { label: "Running", color: "hsl(199,82%,62%)", Icon: ({ className }) => <Loader2 className={`${className} animate-spin`} /> },
+  looping: { label: "Looping", color: "hsl(195,75%,58%)", Icon: ({ className }) => <RotateCcw className={`${className} animate-spin`} style={{ animationDuration: "2s" }} /> },
+  complete: { label: "Complete", color: "hsl(199,55%,52%)", Icon: ({ className }) => <CheckCircle2 className={className} /> },
+  pending: { label: "Pending", color: "hsl(210,15%,45%)", Icon: ({ className }) => <Clock className={className} /> },
   error: { label: "Error", color: "hsl(0,65%,55%)", Icon: ({ className }) => <AlertCircle className={className} /> },
 };
 
@@ -209,10 +209,10 @@ function SubagentStatusBadge({ status }: { status?: "running" | "complete" | "er
   if (!status) return null;
   if (status === "running") {
     return (
-      <span className="ml-auto flex items-center gap-1 text-[10px] font-medium flex-shrink-0" style={{ color: "hsl(45,95%,58%)" }}>
+      <span className="ml-auto flex items-center gap-1 text-[10px] font-medium flex-shrink-0" style={{ color: "hsl(199,82%,62%)" }}>
         <span className="relative flex h-1.5 w-1.5">
-          <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: "hsl(45,95%,58%)" }} />
-          <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ backgroundColor: "hsl(45,95%,58%)" }} />
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: "hsl(199,82%,62%)" }} />
+          <span className="relative inline-flex rounded-full h-1.5 w-1.5" style={{ backgroundColor: "hsl(199,82%,62%)" }} />
         </span>
         Running
       </span>
@@ -220,7 +220,7 @@ function SubagentStatusBadge({ status }: { status?: "running" | "complete" | "er
   }
   if (status === "complete") {
     return (
-      <span className="ml-auto flex items-center gap-1 text-[10px] font-medium flex-shrink-0" style={{ color: "hsl(43,70%,45%)" }}>
+      <span className="ml-auto flex items-center gap-1 text-[10px] font-medium flex-shrink-0" style={{ color: "hsl(199,55%,52%)" }}>
         <CheckCircle2 className="w-3 h-3" />
         Complete
       </span>
@@ -430,7 +430,7 @@ export default function NodeDetailPanel({ node, nodeSpec, allNodeSpecs, subagent
                     <div className="flex items-center justify-between mb-2">
                       <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">Judge Criteria</p>
                       {passed !== null && (
-                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${passed ? "bg-[hsl(43,70%,45%)]/15 text-[hsl(43,70%,45%)]" : "bg-red-500/15 text-red-400"}`}>
+                        <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${passed ? "bg-[hsl(199,55%,52%)]/15 text-[hsl(199,55%,52%)]" : "bg-red-500/15 text-red-400"}`}>
                           {passed ? "Passed" : "Failed"}
                         </span>
                       )}
@@ -438,7 +438,7 @@ export default function NodeDetailPanel({ node, nodeSpec, allNodeSpecs, subagent
                     <div className="flex flex-col gap-1.5">
                       {criteriaLines.map((line, i) => (
                         <div key={i} className="flex items-start gap-2">
-                          <div className={`mt-0.5 w-3.5 h-3.5 rounded-full flex-shrink-0 flex items-center justify-center border ${passed ? "border-transparent bg-[hsl(43,70%,45%)]" : "border-border/40 bg-muted/30"}`}>
+                          <div className={`mt-0.5 w-3.5 h-3.5 rounded-full flex-shrink-0 flex items-center justify-center border ${passed ? "border-transparent bg-[hsl(199,55%,52%)]" : "border-border/40 bg-muted/30"}`}>
                             {passed && (
                               <svg viewBox="0 0 8 8" className="w-2 h-2" fill="none">
                                 <path d="M1.5 4l2 2 3-3" stroke="white" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round"/>
