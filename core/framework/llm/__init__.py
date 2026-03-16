@@ -47,3 +47,10 @@ try:
     __all__.append("MockLLMProvider")
 except ImportError:
     pass
+
+try:
+    from framework.llm.gradient import GradientProvider  # noqa: F401
+
+    __all__.append("GradientProvider")
+except ImportError:
+    pass

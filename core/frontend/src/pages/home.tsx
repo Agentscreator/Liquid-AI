@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Crown, Mail, Briefcase, Shield, Search, Newspaper, ArrowRight, Hexagon, Send, Bot, Radar, Reply, DollarSign, MapPin, Calendar, UserPlus, Twitter } from "lucide-react";
+import { Mail, Briefcase, Shield, Search, Newspaper, ArrowRight, Hexagon, Send, Bot, Radar, Reply, DollarSign, MapPin, Calendar, UserPlus, Twitter, Droplets } from "lucide-react";
 import TopBar from "@/components/TopBar";
 import VoiceButton from "@/components/VoiceButton";
 import { useVoice } from "@/hooks/use-voice";
@@ -189,11 +189,11 @@ export default function Home() {
                 boxShadow: "0 0 24px hsl(199,82%,62%,0.08)",
               }}
             >
-              <Crown className="w-6 h-6 text-primary" />
+              <Droplets className="w-6 h-6 text-primary" />
             </div>
             <h1 className="text-xl font-semibold text-foreground mb-1.5">What can I help you with?</h1>
             <p className="text-sm text-muted-foreground">
-              I'm your Queen Bee — I create and coordinate worker agents to handle tasks for you.
+              Powered by DigitalOcean Gradient™ AI — I create and coordinate worker agents to handle tasks for you.
             </p>
           </div>
 

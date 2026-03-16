@@ -44,10 +44,22 @@ def get_hive_config() -> dict[str, Any]:
 
 
 def get_preferred_model() -> str:
-    """Return the user's preferred LLM model string (e.g. 'anthropic/claude-sonnet-4-20250514')."""
+    """Return the user's preferred LLM model string (e.g. 'anthropic/claude-sonnet-4-20250514').
+
+    When provider is 'gradient', returns the model name without a provider prefix
+    since the Gradient SDK handles routing internally.
+    """
     llm = get_hive_config().get("llm", {})
-    if llm.get("provider") and llm.get("model"):
-        return f"{llm['provider']}/{llm['model']}"
+    provider = llm.get("provider", "")
+    model = llm.get("model", "")
+    if provider and model:
+        # Gradient models don't use the provider/ prefix convention
+        if provider == "gradient":
+            return model
+        return f"{provider}/{model}"
+    # Default: use Gradient serverless inference if key is available
+    if os.environ.get("GRADIENT_MODEL_ACCESS_KEY"):
+        return "llama3.3-70b-instruct"
     return "anthropic/claude-sonnet-4-20250514"
 
 
@@ -57,14 +69,16 @@ def get_max_tokens() -> int:
 
 
 def get_api_key() -> str | None:
-    """Return the API key, supporting env var, Claude Code subscription, Codex, and ZAI Code.
+    """Return the API key, supporting env var, Claude Code subscription, Codex, ZAI Code, and Gradient.
 
     Priority:
     1. Claude Code subscription (``use_claude_code_subscription: true``)
        reads the OAuth token from ``~/.claude/.credentials.json``.
     2. Codex subscription (``use_codex_subscription: true``)
        reads the OAuth token from macOS Keychain or ``~/.codex/auth.json``.
-    3. Environment variable named in ``api_key_env_var``.
+    3. DigitalOcean Gradient (``provider: "gradient"``)
+       reads GRADIENT_MODEL_ACCESS_KEY or GRADIENT_AGENT_ACCESS_KEY.
+    4. Environment variable named in ``api_key_env_var``.
     """
     llm = get_hive_config().get("llm", {})
 
@@ -101,6 +115,14 @@ def get_api_key() -> str | None:
         except ImportError:
             pass
 
+    # DigitalOcean Gradient: check for model or agent access keys
+    if llm.get("provider") == "gradient" or os.environ.get("GRADIENT_MODEL_ACCESS_KEY"):
+        key = os.environ.get("GRADIENT_MODEL_ACCESS_KEY") or os.environ.get(
+            "GRADIENT_AGENT_ACCESS_KEY"
+        )
+        if key:
+            return key
+
     # Standard env-var path (covers ZAI Code and all API-key providers)
     api_key_env_var = llm.get("api_key_env_var")
     if api_key_env_var:
@@ -122,6 +144,9 @@ def get_api_base() -> str | None:
     if llm.get("use_kimi_code_subscription"):
         # Kimi Code uses an Anthropic-compatible endpoint (no /v1 suffix).
         return "https://api.kimi.com/coding"
+    # DigitalOcean Gradient uses its own SDK; api_base is the DO inference endpoint
+    if llm.get("provider") == "gradient":
+        return "https://inference.do-ai.run/v1"
     return llm.get("api_base")
 
 

@@ -2,7 +2,7 @@
   "name": "liquid",
   "version": "0.1.0",
   "private": true,
-  "description": "Liquid - Build goal-driven, self-improving AI agents",
+  "description": "Liquid - Voice-first AI agent platform powered by DigitalOcean Gradient AI",
   "repository": {
     "type": "git",
     "url": "https://github.com/Agentscreator/Liquid-AI.git"

@@ -1,5 +1,5 @@
 import { memo, useState, useRef, useEffect, useCallback } from "react";
-import { Send, Square, Crown, Cpu, Check, Loader2, Volume2 } from "lucide-react";
+import { Send, Square, Droplets, Cpu, Check, Loader2, Volume2 } from "lucide-react";
 import MarkdownContent from "@/components/MarkdownContent";
 import QuestionWidget from "@/components/QuestionWidget";
 import VoiceButton from "@/components/VoiceButton";
@@ -191,7 +191,7 @@ const MessageBubble = memo(function MessageBubble({ msg, queenPhase }: { msg: Ch
         }}
       >
         {isQueen ? (
-          <Crown className="w-4 h-4" style={{ color }} />
+          <Droplets className="w-4 h-4" style={{ color }} />
         ) : (
           <Cpu className="w-3.5 h-3.5" style={{ color }} />
         )}
@@ -429,7 +429,7 @@ export default function ChatPanel({ messages, onSend, isWaiting, isWorkerWaiting
                 boxShadow: `0 0 12px ${queenColor}20`,
               }}
             >
-              <Crown className="w-4 h-4" style={{ color: queenColor }} />
+              <Droplets className="w-4 h-4" style={{ color: queenColor }} />
             </div>
             <div className="border border-primary/20 bg-primary/5 rounded-2xl rounded-tl-md px-4 py-3">
               <div className="flex gap-1.5">

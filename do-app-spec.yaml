@@ -1,0 +1,25 @@
+name: liquid-ai
+region: nyc
+services:
+  - name: liquid
+    dockerfile_path: Dockerfile
+    github:
+      repo: Agentscreator/Liquid-AI
+      branch: main
+      deploy_on_push: true
+    http_port: 8787
+    instance_count: 1
+    instance_size_slug: professional-xs
+    envs:
+      - key: GRADIENT_MODEL_ACCESS_KEY
+        type: SECRET
+      - key: GRADIENT_AGENT_ACCESS_KEY
+        type: SECRET
+      - key: GRADIENT_AGENT_ENDPOINT
+        type: SECRET
+    health_check:
+      http_path: /api/health
+      initial_delay_seconds: 10
+      period_seconds: 30
+    routes:
+      - path: /

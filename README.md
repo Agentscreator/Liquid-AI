@@ -1,7 +1,7 @@
 <p align="center">
   <h1 align="center">Liquid</h1>
   <p align="center">
-    Voice-first AI agent platform powered by Google Gemini Live
+    Voice-first AI agent platform powered by DigitalOcean Gradient™ AI
     <br />
     <em>Speak naturally. Get real-time spoken responses. Text always available.</em>
   </p>
@@ -9,7 +9,7 @@
     <a href="https://github.com/Agentscreator/Liquid-AI/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License"></a>
     <img src="https://img.shields.io/badge/python-3.11%2B-3776AB?logo=python&logoColor=white" alt="Python 3.11+">
     <img src="https://img.shields.io/badge/node-20%2B-339933?logo=node.js&logoColor=white" alt="Node 20+">
-    <img src="https://img.shields.io/badge/Gemini_Live-4285F4?logo=google&logoColor=white" alt="Gemini Live">
+    <img src="https://img.shields.io/badge/DigitalOcean-Gradient_AI-0080FF?logo=digitalocean&logoColor=white" alt="DigitalOcean Gradient AI">
     <img src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=black" alt="React 18">
   </p>
 </p>
@@ -18,9 +18,39 @@
 
 ## Overview
 
-Liquid is a voice-first AI agent platform built on the Google Gemini Live API. Instead of typing commands and reading text, you speak — and Liquid speaks back in real time. A full text interface is always available alongside voice.
+Liquid is a voice-first AI agent platform built on [DigitalOcean Gradient™ AI Platform](https://www.digitalocean.com/products/gradient/platform). Instead of typing commands and reading text, you speak — and Liquid speaks back in real time. A full text interface is always available alongside voice.
 
-Under the hood, Liquid runs a session-based multi-agent framework with a real-time graph executor, encrypted credential management, and live observability via Server-Sent Events.
+Under the hood, Liquid runs a session-based multi-agent framework with a real-time graph executor, encrypted credential management, and live observability via Server-Sent Events — all powered by DigitalOcean's Gradient Serverless Inference and Agent Inference APIs.
+
+<br />
+
+## 🌊 DigitalOcean Gradient™ AI Integration
+
+Liquid is deeply integrated with DigitalOcean's Gradient AI Platform across the full stack:
+
+| Integration Point | How Liquid Uses It |
+|:---|:---|
+| **Serverless Inference** | All LLM calls route through Gradient's serverless endpoint (`inference.do-ai.run/v1`) using models like `llama3.3-70b-instruct`, `deepseek-r1`, and others — no GPU provisioning needed |
+| **Agent Inference** | Managed agents with knowledge bases, guardrails, and multi-agent routing via the Gradient Agent API |
+| **Gradient Python SDK** | Native `gradient` SDK integration (`pip install gradient`) for both sync and async inference with streaming SSE support |
+| **App Platform Deployment** | One-click deploy to DigitalOcean App Platform with auto-build from GitHub, health checks, and secret management |
+| **Single API Key** | One `GRADIENT_MODEL_ACCESS_KEY` accesses all supported models (OpenAI, Anthropic, Meta, Mistral, DeepSeek) through a unified endpoint |
+| **Data Privacy** | When using open-source models, data stays within DigitalOcean infrastructure — never used for training |
+
+### How It Works with Gradient
+
+```
+User speaks → Browser captures audio → WebSocket streams to backend
+           → Backend calls Gradient Serverless Inference API
+           → Model returns response via streaming SSE
+           → Audio plays back in real time + transcript in chat
+           → Queen agent orchestrates workers via Gradient Agent Inference
+```
+
+The Gradient Python SDK (`from gradient import Gradient`) powers all LLM interactions:
+- **Serverless Inference** for direct model calls with `GRADIENT_MODEL_ACCESS_KEY`
+- **Agent Inference** for managed agent workflows with `GRADIENT_AGENT_ACCESS_KEY`
+- **Streaming** via SSE for real-time token delivery to the frontend
 
 <br />
 
@@ -29,7 +59,7 @@ Under the hood, Liquid runs a session-based multi-agent framework with a real-ti
 <table>
   <tr>
     <td>🎙️&nbsp;&nbsp;<strong>Voice-First Interaction</strong></td>
-    <td>Click the mic, speak, and hear real-time spoken responses via Gemini Live 2.5 Flash</td>
+    <td>Click the mic, speak, and hear real-time spoken responses powered by Gradient AI inference</td>
   </tr>
   <tr>
     <td>⌨️&nbsp;&nbsp;<strong>Text Always Available</strong></td>
@@ -37,11 +67,11 @@ Under the hood, Liquid runs a session-based multi-agent framework with a real-ti
   </tr>
   <tr>
     <td>⚡&nbsp;&nbsp;<strong>Low-Latency Streaming</strong></td>
-    <td>Bidirectional audio via WebSocket with natural voice output (Aoede voice)</td>
+    <td>Bidirectional audio via WebSocket with Gradient SSE streaming for token delivery</td>
   </tr>
   <tr>
     <td>🤖&nbsp;&nbsp;<strong>Multi-Agent Graphs</strong></td>
-    <td>Define goal-driven agents as node graphs; a Queen agent orchestrates workers</td>
+    <td>Define goal-driven agents as node graphs; a Queen agent orchestrates workers via Gradient Agent Inference</td>
   </tr>
   <tr>
     <td>🔄&nbsp;&nbsp;<strong>Self-Improving Agents</strong></td>
@@ -59,6 +89,10 @@ Under the hood, Liquid runs a session-based multi-agent framework with a real-ti
     <td>🔐&nbsp;&nbsp;<strong>Credential Management</strong></td>
     <td>Encrypted API key storage — add once, available everywhere</td>
   </tr>
+  <tr>
+    <td>🌊&nbsp;&nbsp;<strong>DigitalOcean Native</strong></td>
+    <td>Deploy to App Platform, inference via Gradient, secrets managed by DO — fully integrated</td>
+  </tr>
 </table>
 
 <br />
@@ -67,11 +101,13 @@ Under the hood, Liquid runs a session-based multi-agent framework with a real-ti
 
 | Layer | Technology |
 |:------|:-----------|
-| Voice AI | Google Gemini Live API (`gemini-live-2.5-flash`) |
+| AI Inference | [DigitalOcean Gradient™ AI](https://www.digitalocean.com/products/gradient/platform) — Serverless Inference + Agent Inference |
+| Gradient SDK | `pip install gradient` / `npm install @digitalocean/gradient` |
 | Agent Runtime | Python 3.11 · aiohttp · async graph executor |
 | Frontend | React 18 · TypeScript · Tailwind CSS · Vite |
 | Streaming | WebSocket (voice) · Server-Sent Events (agent events) |
-| LLM Support | LiteLLM — Gemini, Claude, OpenAI, local models |
+| LLM Models | Llama 3.3, DeepSeek, Mistral, GPT-4o, Claude — all via single Gradient endpoint |
+| Deployment | DigitalOcean App Platform · Docker |
 | Package Manager | [uv](https://docs.astral.sh/uv/) |
 
 <br />
@@ -82,7 +118,8 @@ Under the hood, Liquid runs a session-based multi-agent framework with a real-ti
 
 - Python 3.11+
 - Node.js 20+
-- A Google API key with Gemini Live access — [get one here](https://aistudio.google.com/apikey)
+- A DigitalOcean account with Gradient AI access — [sign up here](https://cloud.digitalocean.com/registrations/new)
+- A Gradient Model Access Key — [create one here](https://cloud.digitalocean.com/gradient-ai/serverless-inference)
 
 ### 1. Clone and install
 
@@ -98,17 +135,38 @@ The quickstart script sets up:
 - Encrypted credential store (`~/.hive/credentials`)
 - All Python dependencies via `uv`
 
-### 2. Add your API key
+### 2. Add your Gradient API key
 
 Create a `.env` file in the project root:
 
 ```bash
-echo "GOOGLE_API_KEY=your_key_here" > .env
+# Required: Gradient Serverless Inference key
+echo "GRADIENT_MODEL_ACCESS_KEY=your_key_here" > .env
+
+# Optional: Gradient Agent Inference (for managed agents)
+echo "GRADIENT_AGENT_ACCESS_KEY=your_agent_key" >> .env
+echo "GRADIENT_AGENT_ENDPOINT=your_agent_endpoint" >> .env
 ```
 
-Or add it through the UI after starting: **Settings → Credentials → Add GOOGLE_API_KEY**
+Or add it through the UI after starting: **Settings → Credentials → Add GRADIENT_MODEL_ACCESS_KEY**
 
-### 3. Start the server
+### 3. Configure Gradient as your LLM provider
+
+Create or edit `~/.hive/configuration.json`:
+
+```json
+{
+  "llm": {
+    "provider": "gradient",
+    "model": "llama3.3-70b-instruct",
+    "api_key_env_var": "GRADIENT_MODEL_ACCESS_KEY"
+  }
+}
+```
+
+Available Gradient models include: `llama3.3-70b-instruct`, `deepseek-r1`, `mistral-small-3.1-24b-instruct`, and [many more](https://docs.digitalocean.com/products/gradient-ai-platform/how-to/use-serverless-inference/).
+
+### 4. Start the server
 
 ```bash
 cd core
@@ -125,37 +183,54 @@ Open [http://localhost:8000](http://localhost:8000) and you're ready to go.
 1. Open a session in the workspace
 2. Click the mic button next to the text input
 3. Speak — the mic pulses red while listening
-4. Liquid responds with audio; the speaker icon shows while she speaks
+4. Liquid responds with audio; the speaker icon shows while it speaks
 5. Click the mic again (or the stop button) to end the voice session
 
 Voice transcripts appear in the chat alongside text messages, so you always have a full written record.
 
 <br />
 
-## 🔧 How It Works
+## 🌊 Deploy to DigitalOcean
 
+### Option A: App Platform (recommended)
+
+```bash
+# Install doctl CLI
+brew install doctl    # macOS
+doctl auth init       # authenticate
+
+# Deploy with the included app spec
+doctl apps create --spec do-app-spec.yaml
 ```
-User speaks → Browser captures 16 kHz PCM audio
-            → WebSocket streams chunks to backend
-            → Backend proxies to Gemini Live API
-            → Gemini returns audio (24 kHz) + text transcript
-            → Audio plays back in real time
-            → Transcript shown in chat
-            → Response injected into agent context
+
+Or use the deploy script:
+
+```bash
+GRADIENT_MODEL_ACCESS_KEY=your_key ./deploy-digitalocean.sh
+```
+
+### Option B: Docker on a Droplet
+
+```bash
+docker build -t liquid .
+docker run -p 8787:8787 \
+  -e GRADIENT_MODEL_ACCESS_KEY=your_key \
+  liquid
 ```
 
 <br />
 
 ## 🏗 Architecture
 
-Liquid uses a **Queen + Worker** agent pattern:
+Liquid uses a **Queen + Worker** agent pattern, with all inference routed through DigitalOcean Gradient:
 
 | Component | Role |
 |:----------|:-----|
-| Queen | Orchestrates conversation, delegates tasks, monitors worker output |
-| Workers | Execute specific goals as node graphs with tools, memory, and LLM access |
+| Queen | Orchestrates conversation, delegates tasks, monitors worker output via Gradient Agent Inference |
+| Workers | Execute specific goals as node graphs with tools, memory, and LLM access via Gradient Serverless Inference |
 | Judge | Evaluates worker output against defined criteria and escalates failures |
 | Event Bus | Pub/sub system streaming 25+ event types to the frontend in real time |
+| Gradient Provider | Custom LLM provider (`framework/llm/gradient.py`) wrapping the official Gradient Python SDK |
 
 <br />
 
@@ -166,7 +241,8 @@ Liquid-AI/
 ├── core/
 │   ├── framework/            # Agent runtime, graph executor, API server
 │   │   ├── server/           # aiohttp routes (REST + SSE + WebSocket)
-│   │   ├── llm/              # LLM provider abstraction (LiteLLM, Gemini, Claude)
+│   │   ├── llm/              # LLM providers (Gradient, LiteLLM, Anthropic)
+│   │   │   └── gradient.py   # DigitalOcean Gradient™ AI provider
 │   │   └── runtime/          # Graph executor, event bus, session management
 │   └── frontend/             # React + TypeScript UI
 │       └── src/
@@ -176,6 +252,8 @@ Liquid-AI/
 ├── tools/                    # MCP tool server
 ├── exports/                  # Your saved agents
 ├── examples/                 # Template agents
+├── deploy-digitalocean.sh    # DigitalOcean App Platform deploy script
+├── do-app-spec.yaml          # App Platform specification
 ├── docs/                     # Architecture docs and guides
 └── .env                      # Your API keys (gitignored)
 ```
@@ -186,9 +264,12 @@ Liquid-AI/
 
 | Variable | Required | Description |
 |:---------|:---------|:------------|
-| `GOOGLE_API_KEY` | Yes | Gemini Live API access for voice |
-| `ANTHROPIC_API_KEY` | No | Enables Claude models for agent tasks |
-| `OPENAI_API_KEY` | No | Enables GPT models |
+| `GRADIENT_MODEL_ACCESS_KEY` | Yes | DigitalOcean Gradient Serverless Inference key |
+| `GRADIENT_AGENT_ACCESS_KEY` | No | Gradient Agent Inference key (for managed agents) |
+| `GRADIENT_AGENT_ENDPOINT` | No | Gradient Agent endpoint URL |
+| `GOOGLE_API_KEY` | No | Gemini Live API access for voice features |
+| `ANTHROPIC_API_KEY` | No | Enables Claude models (also available via Gradient) |
+| `OPENAI_API_KEY` | No | Enables GPT models (also available via Gradient) |
 | `HIVE_CREDENTIAL_KEY` | Auto | Auto-generated key that encrypts the credential store |
 
 <br />
@@ -205,7 +286,7 @@ graph = GraphSpec(
 )
 ```
 
-Or describe the agent you want in the home input — the Queen agent generates the graph and wiring automatically.
+Or describe the agent you want in the home input — the Queen agent generates the graph and wiring automatically, using Gradient inference to power every step.
 
 <br />
 
