@@ -1,10 +1,7 @@
-import { memo, useState, useRef, useEffect, useCallback } from "react";
-import { Send, Square, Droplets, Cpu, Check, Loader2, Volume2 } from "lucide-react";
+import { memo, useState, useRef, useEffect } from "react";
+import { Send, Square, Droplets, Cpu, Check, Loader2 } from "lucide-react";
 import MarkdownContent from "@/components/MarkdownContent";
 import QuestionWidget from "@/components/QuestionWidget";
-import VoiceButton from "@/components/VoiceButton";
-import { useVoice } from "@/hooks/use-voice";
-import { useTTS } from "@/hooks/use-tts";
 
 export interface ChatMessage {
   id: string;
@@ -43,10 +40,6 @@ interface ChatPanelProps {
   onQuestionDismiss?: () => void;
   /** Queen operating phase — shown as a tag on queen messages */
   queenPhase?: "planning" | "building" | "staging" | "running";
-  /** Backend session ID — enables the voice button when provided */
-  sessionId?: string;
-  /** When true, auto-start voice on mount (e.g. navigated from home page mic) */
-  autoStartVoice?: boolean;
 }
 
 const queenColor = "hsl(199,82%,62%)";
@@ -154,7 +147,6 @@ const MessageBubble = memo(function MessageBubble({ msg, queenPhase }: { msg: Ch
   const isUser = msg.type === "user";
   const isQueen = msg.role === "queen";
   const color = getColor(msg.agent, msg.role);
-  const { speak, cancel, speaking } = useTTS();
 
   if (msg.type === "system") {
     return (
@@ -216,19 +208,6 @@ const MessageBubble = memo(function MessageBubble({ msg, queenPhase }: { msg: Ch
                     : "building phase"
               : "Worker"}
           </span>
-          {msg.content?.trim() && (
-            <button
-              onClick={() => speaking ? cancel() : speak(msg.content)}
-              className={`ml-0.5 flex items-center justify-center w-5 h-5 rounded-md transition-colors ${
-                speaking
-                  ? "text-primary bg-primary/10"
-                  : "text-muted-foreground/40 hover:text-muted-foreground hover:bg-muted/60"
-              }`}
-              title={speaking ? "Stop" : "Read aloud"}
-            >
-              {speaking ? <Square className="w-2.5 h-2.5 fill-current" /> : <Volume2 className="w-3 h-3" />}
-            </button>
-          )}
         </div>
         <div
           className={`text-sm leading-relaxed rounded-2xl rounded-tl-md px-4 py-3 ${
@@ -242,130 +221,19 @@ const MessageBubble = memo(function MessageBubble({ msg, queenPhase }: { msg: Ch
   );
 }, (prev, next) => prev.msg.id === next.msg.id && prev.msg.content === next.msg.content && prev.queenPhase === next.queenPhase);
 
-export default function ChatPanel({ messages, onSend, isWaiting, isWorkerWaiting, isBusy, activeThread, disabled, onCancel, pendingQuestion, pendingOptions, onQuestionSubmit, onQuestionDismiss, queenPhase, sessionId, autoStartVoice }: ChatPanelProps) {
+export default function ChatPanel({ messages, onSend, isWaiting, isWorkerWaiting, isBusy, activeThread, disabled, onCancel, pendingQuestion, pendingOptions, onQuestionSubmit, onQuestionDismiss, queenPhase }: ChatPanelProps) {
   const [input, setInput] = useState("");
   const [readMap, setReadMap] = useState<Record<string, number>>({});
-  const [voiceMessages, setVoiceMessages] = useState<ChatMessage[]>([]);
 
-  const [voiceError, setVoiceError] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const stickToBottom = useRef(true);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  // Voice integration — show both sides of the Gemini Live conversation in chat
-  const pendingVoiceMsg = useRef<{ id: string; role: "user" | "assistant" } | null>(null);
-
-  const handleVoiceTranscript = useCallback((text: string, role: "user" | "assistant", isFinal: boolean) => {
-    // Only show user speech transcripts — assistant transcripts are just Gemini reading
-    // hive messages aloud, which are already displayed as hive message bubbles.
-    if (role === "assistant") return;
-
-    setVoiceMessages((prev) => {
-      const pending = pendingVoiceMsg.current;
-      if (pending && pending.role === role) {
-        const updated = prev.map((m) => m.id === pending.id ? { ...m, content: text } : m);
-        if (isFinal) pendingVoiceMsg.current = null;
-        return updated;
-      }
-      const id = `voice-${Date.now()}-${Math.random().toString(36).slice(2)}`;
-      const msg: ChatMessage = {
-        id,
-        agent: "You",
-        agentColor: "hsl(195,70%,52%)",
-        content: text,
-        timestamp: new Date().toISOString(),
-        type: "user",
-        thread: activeThread,
-        createdAt: Date.now(),
-      };
-      if (!isFinal) pendingVoiceMsg.current = { id, role };
-      else pendingVoiceMsg.current = null;
-      return [...prev, msg];
-    });
-
-    // Final user speech → mirror into input box AND auto-submit to hive agent
-    if (isFinal) {
-      setInput(text);
-      onSend(text, activeThread);
-    }
-  }, [activeThread, onSend]);
-
-  const handleVoiceError = useCallback((message: string) => {
-    console.warn("[Voice]", message);
-    setVoiceError(message);
-    setTimeout(() => setVoiceError(null), 6000);
-  }, []);
-
-  const { state: voiceState, start: startVoice, stop: stopVoice, getAmplitude, injectText } = useVoice({
-    sessionId: sessionId ?? "",
-    onTranscript: handleVoiceTranscript,
-    onError: handleVoiceError,
-  });
-
-  // Auto-start voice when navigated from home page mic button
-  const autoStartFired = useRef(false);
-  useEffect(() => {
-    if (autoStartVoice && sessionId && voiceState === "idle" && !disabled && !autoStartFired.current) {
-      autoStartFired.current = true;
-      startVoice();
-    }
-  }, [autoStartVoice, sessionId, voiceState, disabled, startVoice]);
-
-  // Voice mode: when active, hive responses are injected into Gemini Live
-  const [voiceMode, setVoiceMode] = useState(false);
-  const spokenIdsRef = useRef(new Set<string>());
-
-  // Enter voice mode automatically when voice becomes active
-  useEffect(() => {
-    if (voiceState === "listening" || voiceState === "speaking") {
-      setVoiceMode(true);
-    }
-  }, [voiceState]);
-
-  // Also enter voice mode if autoStartVoice was requested
-  useEffect(() => {
-    if (autoStartVoice) setVoiceMode(true);
-  }, [autoStartVoice]);
-
-  // When voice mode is on, inject hive agent responses into Gemini Live
-  // so Gemini reads them in its own voice (replaces TTS).
-  const prevMessageCountRef = useRef(messages.length);
-  useEffect(() => {
-    if (!voiceMode) {
-      prevMessageCountRef.current = messages.length;
-      return;
-    }
-
-    const newMessages = messages.slice(prevMessageCountRef.current);
-    prevMessageCountRef.current = messages.length;
-
-    for (const msg of newMessages) {
-      if (msg.type === "user" || msg.type === "system" || msg.type === "tool_status") continue;
-      if (!msg.content?.trim()) continue;
-      if (spokenIdsRef.current.has(msg.id)) continue;
-      spokenIdsRef.current.add(msg.id);
-      // Inject into Gemini Live → Gemini reads it aloud and adds "tap or respond" prompt
-      injectText(msg.content);
-    }
-  }, [messages, voiceMode, injectText]);
-
-  // Turn off voice mode handler
-  const handleVoiceModeOff = useCallback(() => {
-    setVoiceMode(false);
-    stopVoice();
-  }, [stopVoice]);
-
-  // Clear voice messages when switching threads
-  useEffect(() => { setVoiceMessages([]); }, [activeThread]);
-
-  const threadMessages = [
-    ...messages.filter((m) => {
-      if (m.type === "system" && !m.thread) return false;
-      return m.thread === activeThread;
-    }),
-    ...voiceMessages,
-  ].sort((a, b) => (a.createdAt ?? 0) - (b.createdAt ?? 0));
+  const threadMessages = messages.filter((m) => {
+    if (m.type === "system" && !m.thread) return false;
+    return m.thread === activeThread;
+  }).sort((a, b) => (a.createdAt ?? 0) - (b.createdAt ?? 0));
 
   // Mark current thread as read
   useEffect(() => {
@@ -473,50 +341,7 @@ export default function ChatPanel({ messages, onSend, isWaiting, isWorkerWaiting
         />
       ) : (
         <form onSubmit={handleSubmit} className="p-4">
-          {/* Voice mode banner — shows when voice mode is active with option to turn off */}
-          {voiceMode && voiceState !== "listening" && voiceState !== "speaking" && !voiceError && (
-            <div className="mb-2 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="flex-1">Voice mode on — Gemini is listening</span>
-              <button
-                type="button"
-                onClick={handleVoiceModeOff}
-                className="ml-auto px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/20 hover:bg-emerald-500/30 transition-colors"
-              >
-                Turn off
-              </button>
-            </div>
-          )}
-
-          {/* Voice status / error banner */}
-          {voiceError ? (
-            <div className="mb-2 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 bg-destructive/10 text-destructive border border-destructive/20">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-destructive" />
-              {voiceError}
-            </div>
-          ) : (voiceState === "listening" || voiceState === "speaking") && (
-            <div className={[
-              "mb-2 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2",
-              voiceState === "listening"
-                ? "bg-red-500/10 text-red-400 border border-red-500/20"
-                : "bg-primary/10 text-primary border border-primary/20",
-            ].join(" ")}>
-              <span className={[
-                "inline-block w-1.5 h-1.5 rounded-full animate-pulse",
-                voiceState === "listening" ? "bg-red-400" : "bg-primary",
-              ].join(" ")} />
-              {voiceState === "listening" ? "Listening… speak naturally" : "Liquid is speaking — interrupt any time"}
-            </div>
-          )}
-
-          <div className={[
-            "flex items-center gap-3 bg-muted/40 rounded-xl px-4 py-2.5 border transition-colors",
-            voiceState === "listening"
-              ? "border-red-500/40"
-              : voiceState === "speaking"
-              ? "border-primary/40"
-              : "border-border focus-within:border-primary/40",
-          ].join(" ")}>
+          <div className="flex items-center gap-3 bg-muted/40 rounded-xl px-4 py-2.5 border border-border focus-within:border-primary/40 transition-colors">
             <textarea
               ref={textareaRef}
               rows={1}
@@ -533,25 +358,9 @@ export default function ChatPanel({ messages, onSend, isWaiting, isWorkerWaiting
                   handleSubmit(e);
                 }
               }}
-              placeholder={
-                voiceState === "listening"
-                  ? "Listening… click stop when done"
-                  : disabled
-                  ? "Connecting to agent..."
-                  : "Message Liquid… or click the mic"
-              }
+              placeholder={disabled ? "Connecting to agent..." : "Message Liquid…"}
               disabled={disabled}
               className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground disabled:opacity-50 disabled:cursor-not-allowed resize-none overflow-y-auto"
-            />
-
-            {/* Voice button — always visible; disabled until a session is active */}
-            <VoiceButton
-              state={voiceState}
-              onStart={startVoice}
-              onStop={stopVoice}
-              disabled={disabled || !sessionId}
-              noSession={!sessionId}
-              getAmplitude={getAmplitude}
             />
 
             {isBusy && onCancel ? (

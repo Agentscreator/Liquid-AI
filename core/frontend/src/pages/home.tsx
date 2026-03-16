@@ -1,9 +1,7 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Briefcase, Shield, Search, Newspaper, ArrowRight, Hexagon, Send, Bot, Radar, Reply, DollarSign, MapPin, Calendar, UserPlus, Twitter, Droplets } from "lucide-react";
 import TopBar from "@/components/TopBar";
-import VoiceButton from "@/components/VoiceButton";
-import { useVoice } from "@/hooks/use-voice";
 import type { LucideIcon } from "lucide-react";
 import { agentsApi } from "@/api/agents";
 
@@ -57,88 +55,11 @@ const promptHints = [
 export default function Home() {
   const navigate = useNavigate();
   const [inputValue, setInputValue] = useState("");
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
 
   const [showAgents, setShowAgents] = useState(false);
   const [agents, setAgents] = useState<DiscoverEntry[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  const [voiceSessionId, setVoiceSessionId] = useState<string | null>(null);
-  const [voiceCreating, setVoiceCreating] = useState(false);
-  const [voiceError, setVoiceError] = useState<string | null>(null);
-  const pendingVoiceStart = useRef(false);
-
-  // voiceCommittedRef: all text from fully-finished utterances this session.
-  // voiceAccumRef: interim delta chunks for the utterance in progress.
-  // Kept separate so interim display = committed + in-progress without losing prior sentences.
-  const voiceCommittedRef = useRef("");
-  const voiceAccumRef = useRef("");
-
-  const handleVoiceTranscript = useCallback((text: string, role: "user" | "assistant", isFinal: boolean) => {
-    if (role === "user" && text.trim()) {
-      if (isFinal) {
-        const sep = voiceCommittedRef.current && !voiceCommittedRef.current.endsWith(" ") ? " " : "";
-        voiceCommittedRef.current = (voiceCommittedRef.current + sep + text).trim();
-        voiceAccumRef.current = "";
-        setInputValue(voiceCommittedRef.current);
-      } else {
-        // Interim delta — concatenate directly; Gemini includes its own spacing.
-        // Adding separators between sub-word chunks like "cre"+"ate" produces "cre ate".
-        voiceAccumRef.current += text;
-        const base = voiceCommittedRef.current;
-        const sep2 = base && !base.endsWith(" ") && !voiceAccumRef.current.startsWith(" ") ? " " : "";
-        setInputValue((base + sep2 + voiceAccumRef.current).trim());
-      }
-      textareaRef.current?.focus();
-    }
-  }, []);
-
-  const handleVoiceError = useCallback((message: string) => {
-    console.warn("[Voice]", message);
-    setVoiceError(message);
-    setTimeout(() => setVoiceError(null), 6000);
-  }, []);
-
-  const { state: voiceState, start: startVoice, stop: stopVoice, getAmplitude } = useVoice({
-    sessionId: voiceSessionId ?? "",
-    onTranscript: handleVoiceTranscript,
-    onError: handleVoiceError,
-  });
-
-  // Auto-start voice once session is ready
-  useEffect(() => {
-    if (pendingVoiceStart.current && voiceSessionId && voiceState === "idle") {
-      pendingVoiceStart.current = false;
-      startVoice();
-    }
-  }, [voiceSessionId, voiceState, startVoice]);
-
-  const handleVoiceClick = useCallback(async () => {
-    if (voiceState === "listening" || voiceState === "speaking") {
-      stopVoice();
-      return;
-    }
-    voiceCommittedRef.current = "";
-    voiceAccumRef.current = "";
-    setInputValue("");
-    if (voiceSessionId) {
-      startVoice();
-      return;
-    }
-    setVoiceCreating(true);
-    try {
-      const { sessionsApi } = await import("@/api/sessions");
-      const session = await sessionsApi.create();
-      setVoiceSessionId(session.session_id);
-      pendingVoiceStart.current = true;
-    } catch (err) {
-      setVoiceError(err instanceof Error ? err.message : "Failed to start voice session");
-    } finally {
-      setVoiceCreating(false);
-    }
-  }, [voiceState, voiceSessionId, startVoice, stopVoice]);
 
   // Fetch agents on mount so data is ready when user toggles
   useEffect(() => {
@@ -197,37 +118,10 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Voice status banner */}
-          {voiceError ? (
-            <div className="mb-3 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2 bg-destructive/10 text-destructive border border-destructive/20">
-              <span className="inline-block w-1.5 h-1.5 rounded-full bg-destructive" />
-              {voiceError}
-            </div>
-          ) : (voiceState === "listening" || voiceState === "speaking") && (
-            <div className={[
-              "mb-3 px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-2",
-              voiceState === "listening"
-                ? "bg-red-500/10 text-red-400 border border-red-500/20"
-                : "bg-primary/10 text-primary border border-primary/20",
-            ].join(" ")}>
-              <span className={[
-                "inline-block w-1.5 h-1.5 rounded-full animate-pulse",
-                voiceState === "listening" ? "bg-red-400" : "bg-primary",
-              ].join(" ")} />
-              {voiceState === "listening" ? "Listening… speak naturally" : "Liquid is speaking — interrupt any time"}
-            </div>
-          )}
-
           {/* Chat input */}
           <form onSubmit={handleSubmit} className="mb-4">
-            <div className={[
-              "relative border rounded-xl bg-card/50 transition-colors shadow-sm",
-              voiceState === "listening"
-                ? "border-red-500/40"
-                : "border-border/60 hover:border-primary/30 focus-within:border-primary/40",
-            ].join(" ")}>
+            <div className="relative border border-border/60 hover:border-primary/30 focus-within:border-primary/40 rounded-xl bg-card/50 transition-colors shadow-sm">
               <textarea
-                ref={textareaRef}
                 rows={1}
                 value={inputValue}
                 onChange={(e) => {
@@ -242,21 +136,10 @@ export default function Home() {
                     handleSubmit(e);
                   }
                 }}
-                placeholder={
-                  voiceState === "listening"
-                    ? "Listening… click stop when done"
-                    : "Describe a task for the hive… or click the mic"
-                }
-                className="w-full bg-transparent px-5 py-4 pr-24 text-sm focus:outline-none rounded-xl resize-none overflow-y-auto text-foreground placeholder:text-muted-foreground/60"
+                placeholder="Describe a task for the hive…"
+                className="w-full bg-transparent px-5 py-4 pr-16 text-sm focus:outline-none rounded-xl resize-none overflow-y-auto text-foreground placeholder:text-muted-foreground/60"
               />
               <div className="absolute right-3 bottom-2.5 flex items-center gap-1.5">
-                <VoiceButton
-                  state={voiceCreating ? "connecting" : voiceState}
-                  onStart={handleVoiceClick}
-                  onStop={handleVoiceClick}
-                  getAmplitude={getAmplitude}
-                />
-                {/* Send button */}
                 <button
                   type="submit"
                   disabled={!inputValue.trim()}
